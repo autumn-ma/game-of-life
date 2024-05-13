@@ -19,7 +19,16 @@
   </style>
 </head>
 <body class="flex items-center justify-center pt-10 bg-black text-white">
-  <main class="flex flex-col items-center max-h-96 min-w-96 justify-center pt-10">
+  <main class="flex flex-col items-center max-h-96 min-w-96 justify-center pt-10 mt-10">
+    <h1 class="text-2xl font-bold">Game of Life</h1>
+    <p class="text-sm">Click on the cells to make them alive or dead</p>
+    <p class="text-sm" title=
+    " - Cell with fewer than two buddy dies, as if by underpopulated.
+      - Cell with two or three buddy lives on to the next generation.
+      - Cell with more than three buddy dies, as if by overpopulation.
+      - Any dead cell with exactly three buddy becomes alive.
+    ">Rules ❔</p>
+
     <div id="grid" class="flex flex-row"></div>
     <div>
       Generation Speed
