@@ -1,0 +1,142 @@
+<!-- 
+1. Any live cell with fewer than two live neighbors dies, as if by underpopulated.
+2. Any live cell with two or three live neighbors lives on to the next generation.
+3. Any live cell with more than three live neighbors dies, as if by overpopulation.
+4. Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game of Life</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .cell {
+      height: 20px;
+      width: 20px;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center pt-10 bg-black text-white">
+  <main class="flex flex-col items-center max-h-96 min-w-96 justify-center pt-10">
+    <div id="grid" class="flex flex-row"></div>
+    <div class="flex flex-row">
+      <button class="bg-blue-500 text-white px-4 py-2 rounded-md m-2" onclick="letThereBeLife(true)">Start</button>
+      <button class="bg-yellow-500 text-white px-4 py-2 rounded-md m-2" onclick="letThereBeLife(false)">Pause</button>
+      <button class="bg-red-500 text-white px-4 py-2 rounded-md m-2" onclick="location.reload()">Reset</button>
+    </div>
+    <h1 id="status"></h1>
+  </main>
+  <script>
+    const height = 20;
+    const width = 20;
+    const liveCellColor = "bg-blue-500";
+    const deadCellColor = "bg-blue-200";
+    const cellStyle = "cell";
+    let currentGeneration = 0;
+    const liveCellArray = [];
+
+    let liveCellIndexArr = [];
+
+    function createGrid() {
+      const grid = document.getElementById('grid');
+      for (let i = 0; i < width; i++) {
+        const row = document.createElement('div');
+        for (let j = 0; j < height; j++) {
+          const cell = document.createElement('div');
+          cell.id = `${i}-${j}`;
+          cell.className = `${cellStyle} flex justify-center items-center ${deadCellColor}`;
+          cell.addEventListener('click', () => {
+            if (cell.className.includes(liveCellColor)) {
+              cell.className = `${cellStyle} ${deadCellColor}`;
+                // remove cell from live cell array
+                const index = liveCellIndexArr.indexOf(cell.id);
+                if (index > -1) {
+                  liveCellIndexArr.splice(index, 1);
+                }
+            } else {
+              cell.className = `${cellStyle} ${liveCellColor}`;
+              liveCellIndexArr.push(cell.id);
+            }
+          });
+          row.appendChild(cell);
+        }
+        grid.appendChild(row);
+      }
+    }
+
+    function countLiveNeighbors(x, y) {
+      let liveNeighbors = 0;
+      for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+          if (i === 0 && j === 0) continue;
+          const neighborX = x + i;
+          const neighborY = y + j;
+          if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
+            const neighborCell = document.getElementById(`${neighborX}-${neighborY}`);
+            if (neighborCell.className.includes(liveCellColor)) {
+              liveNeighbors++;
+            }
+          }
+        }
+      }
+      return liveNeighbors;
+    }
+
+    function mutateCell() {
+      console.log("mutate cell");
+      statusEle = document.getElementById('status');
+      statusEle.innerHTML = `Generation: ${currentGeneration}`;
+      currentGeneration += 1;
+      const newLiveCells = [];
+      const deadCells = [];
+
+      for (let i = 0; i < width; i++) {
+        for (let j = 0; j < height; j++) {
+          const cell = document.getElementById(`${i}-${j}`);
+          const liveNeighbors = countLiveNeighbors(i, j);
+          if (cell.className.includes(liveCellColor)) {
+            if (liveNeighbors < 2 || liveNeighbors > 3) {
+              deadCells.push(cell);
+            } else {
+              newLiveCells.push(cell);
+            }
+          } else {
+            if (liveNeighbors === 3) {
+              newLiveCells.push(cell);
+            }
+          }
+        }
+      }
+
+      // Update cells
+      newLiveCells.forEach(cell => {
+        cell.className = `${cellStyle} ${liveCellColor}`;
+        if (!liveCellIndexArr.includes(cell.id)) {
+          liveCellIndexArr.push(cell.id);
+        }
+      });
+      deadCells.forEach(cell => {
+        cell.className = `${cellStyle} ${deadCellColor}`;
+        const index = liveCellIndexArr.indexOf(cell.id);
+        if (index > -1) {
+          liveCellIndexArr.splice(index, 1);
+        }
+      });
+    }
+
+    function letThereBeLife(flag) {
+      if (flag) {
+        intervalId = setInterval(mutateCell, 750);
+      } else {
+        clearInterval(intervalId);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      createGrid();
+    });
+  </script>
+</body>
+</html>
