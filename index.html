@@ -21,6 +21,10 @@
 <body class="flex items-center justify-center pt-10 bg-black text-white">
   <main class="flex flex-col items-center max-h-96 min-w-96 justify-center pt-10">
     <div id="grid" class="flex flex-row"></div>
+    <div>
+      Generation Speed
+      <input type="range" id="speed" name="speed" min="100" max="1000" value="750">
+    </div>
     <div class="flex flex-row">
       <button class="bg-blue-500 text-white px-4 py-2 rounded-md m-2" onclick="letThereBeLife(true)">Start</button>
       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md m-2" onclick="letThereBeLife(false)">Pause</button>
@@ -84,13 +88,23 @@
       return liveNeighbors;
     }
 
+    function checkIfAllDead() {
+      return liveCellIndexArr.length === 0;
+    }
+
     function mutateCell() {
-      console.log("mutate cell");
+      
       statusEle = document.getElementById('status');
       statusEle.innerHTML = `Generation: ${currentGeneration}`;
       currentGeneration += 1;
       const newLiveCells = [];
       const deadCells = [];
+      
+      if (checkIfAllDead()) {
+        clearInterval(intervalId);
+        statusEle.innerHTML = `All cells are dead. Game over!`;
+        return;
+      }
 
       for (let i = 0; i < width; i++) {
         for (let j = 0; j < height; j++) {
@@ -127,8 +141,9 @@
     }
 
     function letThereBeLife(flag) {
+      const speed = document.getElementById('speed').value;
       if (flag) {
-        intervalId = setInterval(mutateCell, 750);
+        intervalId = setInterval(mutateCell, speed);
       } else {
         clearInterval(intervalId);
       }
